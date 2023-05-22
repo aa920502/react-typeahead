@@ -1,20 +1,13 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import debounce from 'lodash.debounce';
+import React, { useState, useMemo, useEffect } from "react";
+import debounce from "lodash.debounce";
 import { getApiSuggestions } from "../requests/index";
 
-import { Input, Ul, Li, SuggestContainer } from './styles';
+import { Input, Ul, Li, SuggestContainer } from "./styles";
 
-export function SearchInput({
-    // loading,
-    // suggestions,
-    // fetchData,
-    onClickFunction,
-    placeholder,
-}) {
-    const [inputValue, setInputValue] = useState('');
+export function SearchInput() {
+    const [inputValue, setInputValue] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
-
 
     const fetchData = async (word) => {
         if (word) {
@@ -26,7 +19,7 @@ export function SearchInput({
                 setSuggestions(response);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching API suggestions:', error);
+                console.error("Error fetching API suggestions:", error);
                 setLoading(false);
             }
         } else {
@@ -34,23 +27,27 @@ export function SearchInput({
         }
     };
 
+    const getApiUrl = (url) => {
+        window.open(url, "_blank");
+    };
 
-    // When the debounced function debouncedCallback gets invoked multiple 
+    // When the debounced function debouncedCallback gets invoked multiple
     // times, in bursts, it will invoke the callback only after waitTime has
     //  passed after the last invocation.
-    const debouncedFetchData =
-        useMemo(() => debounce((newValue) => fetchData(newValue), 1000), []);
+    const debouncedFetchData = useMemo(
+        () => debounce((newValue) => fetchData(newValue), 1000),
+        []
+    );
     // Stop the invocation of the debounced function
     // after unmounting
     useEffect(() => {
         return () => {
             debouncedFetchData.cancel();
-        }
+        };
     }, [debouncedFetchData]);
 
-
     const updateValue = (newValue) => {
-        console.log("searching ", newValue)
+        console.log("searching ", newValue);
         setInputValue(newValue);
         debouncedFetchData(newValue);
     };
@@ -60,7 +57,7 @@ export function SearchInput({
             <Input
                 value={inputValue}
                 onChange={(input) => updateValue(input.target.value)}
-                placeholder={placeholder}
+                placeholder="find a public api"
             />
             <SuggestContainer>
                 <Ul>
@@ -70,7 +67,7 @@ export function SearchInput({
                         suggestions?.entries?.map((value, index) => (
                             <Li
                                 key={`${value.API}-${index}`}
-                                onClick={() => onClickFunction(value.Link)}
+                                onClick={() => getApiUrl(value.Link)}
                             >
                                 {value.API}
                             </Li>
@@ -79,6 +76,4 @@ export function SearchInput({
             </SuggestContainer>
         </div>
     );
-
-
 }
